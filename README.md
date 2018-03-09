@@ -51,7 +51,7 @@ event1:
 
 The first three keys describes when the `do`-block should be executed. 
 The order of these conditions is as shown above.
-This means for example that after the program waited a few seconds the command will be executed.
+This means for example that after the events this event1 dependsOn have returned, the program waited a few seconds and the command has succesfully been executed the do-part of this event will be executed.
 
 #### dependOn
 `dependOn` takes a list of other events (identified with their keys).
@@ -65,7 +65,7 @@ This means, the execution waits until the events `evt2` and `evt3` have finished
 
 #### seconds
 Delays the execution of the `do`-block for a few seconds.
-The value have to be a number (in seconds).
+The value has to be a number (in seconds).
 
 Example:
 ```yaml
@@ -80,11 +80,11 @@ Example:
 ```yaml
 command: "ping -c 1 192.168.1.2"
 ```
-This would test if the computer with the IP-address `192.168.1.2` is reachable and execute the `do`-block if there is an connection.
+This would test if the computer with the IP-address `192.168.1.2` is reachable and execute the `do`-block (if there is an connection) once the command returned `1`.
 
 #### do
 The `do`-block will be executed when all conditions (see above) were processed.
-Its a map from the key of an action to the values of this actions.
+Its a map from the key of an action to the values of these actions.
 
 Example:
 ```yaml
@@ -95,7 +95,7 @@ do:
 
 This means after all conditions are processed the script will start a timer with the name `T1` and join the nodes `Node1` and `Node2`.
 
-Be careful: The actions will not necessarily be executed in the given order.
+Be careful: The actions specified in the do-section will not necessarily be executed in the given order.
 
 ### Actions
 
@@ -142,10 +142,10 @@ The sorted list of the containers is the key of the network (not the name).
 The value of `internal` can be `True` or `False`. 
 It maps to the [internal flag](https://docs.docker.com/engine/reference/commandline/network_create/#network-internal-mode) of docker.
 
-The mode can be any of `row`, `ring` or `cluster`.
-If the mode is `cluster` one network with all containers will be created.
-If the mode is `row` a separate network will be created each pair of containers which are next to each other in the `container` list.
-If the mode is `ring` it also connects the ends to each other.
+The `mode` can be any of `row`, `ring` or `cluster`.
+If the `mode` is `cluster` one network with all containers will be created.
+If the `mode` is `row` a separate network will be created for each pair of containers which are next to each other in the `container` list.
+If the `mode` is `ring` it also connects the ends to each other.
 
 `internal` and `mode` are optional. The default values are `False` for `internal` and `cluster` for `mode`.
 
@@ -226,6 +226,12 @@ Be careful: If you add a delay (or a duplicate, corrupt or loss effect) to a net
 This means the real delay is as twice as much as given (outgoing from one container ingoing in the other one).
 For all other fields have a look in the [documentation](http://man7.org/linux/man-pages/man8/tc-netem.8.html).
 
+Please note: You also need to add network capabilities to your containers:
+```yaml
+cap_add:
+- NET_ADMIN
+```
+
 ## Networking with the Docker Network Simulator
 
 We recommend to create all networks in a setup with the `join` action and not with docker-compose itself.
@@ -238,7 +244,7 @@ If you like to have an isolated environment, don't forget to add the `internal`-
 ## Data-Exchange between containers
 
 To exchange data between two containers without using a network between them we used a shared directory in the past.
-You can a volume to each container and use files in the volume to exchange data.
+You can add a volume to each container and use files in the volume to exchange data.
 See the docker-compose documentation for [volumes](https://docs.docker.com/compose/compose-file/#volumes) for more details.
 
 ## Examples
@@ -250,11 +256,11 @@ Have look at the examples folder in this repository to see some examples.
 The setup part of the input-yaml will be written to a new file.
 This file will be used by docker-compose (see `docker-compose up`).
 After executing all events the docker compose environment will be stopped with `docker-compose down` and the docker-compose file will be deleted.
-All created networks will deleted as well.
-After a full run of this tool there shouldn't be any left artifacts.
+All created networks will be deleted as well.
+After a full run of this tool there shouldn't be any artifacts left.
 
 Each event will be executed in a single thread. This threading causes sometimes some weird issues and can effect the precision of the timers.
 
-The `main.py`-file starts the docker-compose environment and creates the thread.
+The `main.py`-file starts the docker-compose environment and creates the threads.
 The `eventWorker.py`-file executes a single event.
 The `executeAction.py`-file distributes the actions to their implementations, which are located in the `actions`-folder.
