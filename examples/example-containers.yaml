@@ -1,0 +1,22 @@
+setup:
+    version: '3'
+    services:
+      node1:
+        image: ubuntu:trusty
+        network_mode: "none"
+        command: sleep 1000
+events:
+    event1:
+        seconds: 2
+        do:
+            stopContainer: ["node1"]
+    event2:
+        dependOn: ["event1"]
+        seconds: 2
+        do:
+            startContainer: ["node1"]
+    event3:
+        dependOn: ["event2"]
+        seconds: 2
+        do:
+            restartContainer: ["node1"]

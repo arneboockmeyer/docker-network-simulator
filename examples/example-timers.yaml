@@ -1,0 +1,23 @@
+setup:
+    version: '3'
+    services:
+      node1:
+        image: ubuntu:trusty
+        network_mode: "none"
+        command: sleep 1000
+events:
+    event1:
+        seconds: 15
+        command: sleep 3s
+        do:
+            startTimer: ["T1"]
+    event2:
+        dependOn: ["event1"]
+        seconds: 5
+        do:
+            printTimer: ["T1"]
+    event3:
+        dependOn: ["event2"]
+        seconds: 10
+        do:
+            stopTimer: ["T1"]

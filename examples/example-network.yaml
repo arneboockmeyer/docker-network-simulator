@@ -1,0 +1,35 @@
+setup:
+    version: '3'
+    services:
+      node1:
+        image: ubuntu:trusty
+        network_mode: "none"
+        cap_add:
+        - NET_ADMIN
+        command: sleep 1000
+      node2:
+        image: ubuntu:trusty
+        network_mode: "none"
+        cap_add:
+        - NET_ADMIN
+        command: sleep 1000
+events:
+    event1:
+        seconds: 2
+        do:
+            join:
+                container: ["node1", "node2"]
+                internal: True
+    event2:
+        dependOn: ["event1"]
+        seconds: 2
+        do:
+            delay:
+                network: ["node1", "node2"]
+                time: "100ms"
+    event3:
+        dependOn: ["event2"]
+        seconds: 2
+        do:
+            cut:
+                container: ["node1", "node2"]
