@@ -24,8 +24,14 @@ class eventWorker (threading.Thread):
             print "sleep for " + str(self.eventObject["seconds"]) + " seconds"
             time.sleep(int(self.eventObject["seconds"]))
 
+        if "command" in self.eventObject:
+            print "execute command: " + self.eventObject["command"]
+            exitCode = call(self.eventObject["command"], shell=True)
+            if exitCode != 0:
+                print "command exited with exit code " + str(exitCode) + ". Abort."
+                return exitCode
+
         if "commands" in self.eventObject:
-            print "execute commands: " + str(self.eventObject["commands"])
             for command in self.eventObject["commands"]:
                 print "execute command: " + command
                 exitCode = call(command, shell=True)
