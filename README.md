@@ -4,12 +4,12 @@
 
 * Python 2.7 installed
 * PyYaml installed (see: [documentation](http://pyyaml.org/wiki/PyYAML))
-* Docker with Docker-composed installed
+* Docker with Docker-compose installed
 
 ## Example-Run:
 
 ```
-python main.py example.yaml
+python main.py examples/example-containers.yaml
 ```
 
 ## YAML-File
@@ -81,12 +81,22 @@ It can execute any list of commands and if this command returns `1`, the `do`-bl
 
 Example:
 ```yaml
-command:
+commands:
   - ping -c 1 192.168.1.2
   - ls
 ```
-This would test if the computer with the IP-address `192.168.1.2` is reachable and execute the `do`-block (if there is an connection) once the command returned `1`. Afterwards it executes ls and executes the `do`-block if ls fails.
+This would test if the computer with the IP-address `192.168.1.2` is reachable and execute the `do`-block (if there is a connection) once the command returned `1`. Afterwards it executes ls and executes the `do`-block if ls succeeds.
 
+#### command (outdated)
+
+It can execute any command and if this command returns `1`, the `do`-block will be executed.
+
+Example:
+```yaml
+command: ping -c 1 192.168.1.2
+```
+
+This would test if the computer with the IP-adress `192.168.1.2` is reachable and execute the `do`-block (if there is a connection) once the command returned `1`.
 #### do
 The `do`-block will be executed when all conditions (see above) were processed.
 Its a map from the key of an action to the values of these actions.
