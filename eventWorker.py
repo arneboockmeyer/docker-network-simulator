@@ -1,6 +1,6 @@
 import threading
 import time
-from subprocess import call
+from subprocess import call, check_output
 from executeAction import executeAction
 
 class eventWorker (threading.Thread):
@@ -44,9 +44,9 @@ class eventWorker (threading.Thread):
             docker_exec = self.eventObject["docker_exec"]
             container_id = check_output("docker ps -aqf name=" + docker_exec["container"], shell=True).strip()
             for command in docker_exec["commands"]:
-                full_command = "docker exec " + container_id + command
-                print "run: docker exec " + container_id + command
-                exitCode = call("docker exec " + container_id + command, shell=True)
+                full_command = "docker exec " + container_id + " " + command
+                print "run: "+ full_command
+                exitCode = call(full_command, shell=True)
                 if exitCode != 0:
                     print "command exited with exit code " + str(exitCode) + ". Abort."
                     return exitCode
