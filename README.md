@@ -48,6 +48,9 @@ event1:
       - command1
       - command2
       - ....
+    docker_exec:
+      container: <docker node name from setup part>
+      commands: <commands to be executed in docker exec>
     do:
         <map of actions>
 ```
@@ -97,6 +100,20 @@ command: ping -c 1 192.168.1.2
 ```
 
 This would test if the computer with the IP-adress `192.168.1.2` is reachable and execute the `do`-block (if there is a connection) once the command returned `1`.
+
+#### docker_exec
+`docker_exec` takes the node name specified in the setup part and executes the `command`-collection with `docker exec`
+
+Example:
+```yaml
+docker_exec:
+  container: node1
+  commands:
+    - ping -c 1 192.168.1.2
+    - ls
+```
+
+
 #### do
 The `do`-block will be executed when all conditions (see above) were processed.
 Its a map from the key of an action to the values of these actions.

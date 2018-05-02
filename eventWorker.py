@@ -39,6 +39,18 @@ class eventWorker (threading.Thread):
                     print "command exited with exit code " + str(exitCode) + ". Abort."
                     return exitCode
 
+        # TODO support docker exec OPTIONS, see https://docs.docker.com/engine/reference/commandline/exec/
+        if "docker_exec" in self.eventObject:
+            docker_exec = self.eventObject["docker_exec"]
+            container_id = check_output("docker ps -aqf name=" + docker_exec["container"], shell=True).strip()
+            for command in docker_exec["commands"]:
+                full_command = "docker exec " + container_id + command
+                print "run: docker exec " + container_id + command
+                exitCode = call("docker exec " + container_id + command, shell=True)
+                if exitCode != 0:
+                    print "command exited with exit code " + str(exitCode) + ". Abort."
+                    return exitCode
+
         if "do" in self.eventObject:
             doObject = self.eventObject["do"]
             for action in doObject:
