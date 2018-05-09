@@ -4,17 +4,17 @@
 
 * Python 2.7 installed
 * PyYaml installed (see: [documentation](http://pyyaml.org/wiki/PyYAML))
-* Docker with Docker-composed installed
+* Docker with Docker-compose installed
 
 ## Example-Run:
 
 ```
-python main.py example.yaml
+python main.py examples/example-containers.yaml
 ```
 
 ## YAML-File
 
-The YAML-File needs two keys, `setup` and `events` on the base level. 
+The YAML-File needs two keys, `setup` and `events` on the base level.
 ```yaml
 setup:
     # docker-compose setup
@@ -22,7 +22,7 @@ events:
     # processed by event engine
 ```
 
-The setup part will be piped directly to docker-compose. 
+The setup part will be piped directly to docker-compose.
 This means, the whole part of container setup is managed by docker-compose.
 You can use each version of the docker-compose-file and all supported features.
 
@@ -44,14 +44,17 @@ Each event can be directly identified with the key and has the following structu
 event1:
     dependOn: <list-of-events>
     seconds: <amount-of-seconds>
-    command: <some-command>
+    commands:
+      - command1
+      - command2
+      - ....
     do:
         <map of actions>
 ```
 
-The first three keys describes when the `do`-block should be executed. 
+The first three keys describes when the `do`-block should be executed.
 The order of these conditions is as shown above.
-This means for example that after the events this event1 dependsOn have returned, the program waited a few seconds and the command has succesfully been executed the do-part of this event will be executed.
+This means for example that after the events this event1 dependsOn have returned, the program waited a few seconds and the commands have succesfully been executed the do-part of this event will be executed.
 
 #### dependOn
 `dependOn` takes a list of other events (identified with their keys).
@@ -73,15 +76,27 @@ seconds: 5
 ```
 This means the execution waits 5 seconds.
 
-#### command
+#### commands
+It can execute any list of commands and if this command returns `1`, the `do`-block will be executed.
+
+Example:
+```yaml
+commands:
+  - ping -c 1 192.168.1.2
+  - ls
+```
+This would test if the computer with the IP-address `192.168.1.2` is reachable and execute the `do`-block (if there is a connection) once the command returned `1`. Afterwards it executes ls and executes the `do`-block if ls succeeds.
+
+#### command (outdated)
+
 It can execute any command and if this command returns `1`, the `do`-block will be executed.
 
 Example:
 ```yaml
-command: "ping -c 1 192.168.1.2"
+command: ping -c 1 192.168.1.2
 ```
-This would test if the computer with the IP-address `192.168.1.2` is reachable and execute the `do`-block (if there is an connection) once the command returned `1`.
 
+This would test if the computer with the IP-adress `192.168.1.2` is reachable and execute the `do`-block (if there is a connection) once the command returned `1`.
 #### do
 The `do`-block will be executed when all conditions (see above) were processed.
 Its a map from the key of an action to the values of these actions.
@@ -139,7 +154,7 @@ The value `container` are the identifiers of the containers, specified in the se
 The action will create a new network and add these containers to the network.
 The sorted list of the containers is the key of the network (not the name).
 
-The value of `internal` can be `True` or `False`. 
+The value of `internal` can be `True` or `False`.
 It maps to the [internal flag](https://docs.docker.com/engine/reference/commandline/network_create/#network-internal-mode) of docker.
 
 The `mode` can be any of `row`, `ring` or `cluster`.
@@ -195,7 +210,7 @@ restartContainer: ["Node3"]
 This example starts `Node1`, stops `Node2` and restarts `Node3`.
 
 #### delay, duplicate, corrupt and loss
-These actions use the linux network emulator `netem`. 
+These actions use the linux network emulator `netem`.
 Make sure that your container support this network emulator when using this command.
 Have a look at the [documentation](http://man7.org/linux/man-pages/man8/tc-netem.8.html) for details.
 

@@ -28,8 +28,16 @@ class eventWorker (threading.Thread):
             print "execute command: " + self.eventObject["command"]
             exitCode = call(self.eventObject["command"], shell=True)
             if exitCode != 0:
-                print "commend exited with exit code " + str(exitCode) + ". Abort."
+                print "command exited with exit code " + str(exitCode) + ". Abort."
                 return exitCode
+
+        if "commands" in self.eventObject:
+            for command in self.eventObject["commands"]:
+                print "execute command: " + command
+                exitCode = call(command, shell=True)
+                if exitCode != 0:
+                    print "command exited with exit code " + str(exitCode) + ". Abort."
+                    return exitCode
 
         if "do" in self.eventObject:
             doObject = self.eventObject["do"]
